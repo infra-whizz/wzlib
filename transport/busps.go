@@ -6,9 +6,10 @@ package wzlib_transport
 
 import (
 	"fmt"
-	"github.com/nats-io/nats.go"
 	"log"
 	"strings"
+
+	"github.com/nats-io/nats.go"
 )
 
 type NatsURL struct {
@@ -31,6 +32,7 @@ func NewWizPubSub() *WzdPubSub {
 
 // AddNatsServerURL adds NATS server URL to the cluster of servers to connect
 func (wzd *WzdPubSub) AddNatsServerURL(host string, port int) *WzdPubSub {
+	log.Printf("Registering bus at %s:%d", host, port)
 	wzd.urls = append(wzd.urls, &NatsURL{Scheme: "nats", Fqdn: host, Port: port})
 	return wzd
 }
