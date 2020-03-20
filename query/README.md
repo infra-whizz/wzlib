@@ -2,7 +2,7 @@
 
 Query parser for Whizz.
 
-#Query syntax
+# Query syntax
 
 This query parser has similar syntax from
 [Sugar Project](https://github.com/sugarsack/sugar):
