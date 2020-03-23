@@ -39,6 +39,6 @@ func (ci *CPUInfo) inspect(c *wzlib_traits.WzTraitsContainer) {
 		c.Set(fmt.Sprintf("cpu.%d.vendor_id", idx), nfo.VendorID)
 		c.Set(fmt.Sprintf("cpu.%d.stepping", idx), nfo.Stepping)
 		c.Set(fmt.Sprintf("cpu.%d.cache_size", idx), nfo.CacheSize)
-		c.Set(fmt.Sprintf("cpu.%d", idx), nfo.CPU)
+		c.Set(fmt.Sprintf("cpu.%d.ord", idx), nfo.CPU)
 	}
 }
