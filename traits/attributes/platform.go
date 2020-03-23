@@ -29,7 +29,6 @@ func NewSysInfo() *SysInfo {
 func (si *SysInfo) Load(container *wzlib_traits.WzTraitsContainer) {
 	si.memory(container)
 	si.info(container)
-	si.network(container)
 	si.osInfo(container)
 }
 
@@ -48,11 +47,6 @@ func (si *SysInfo) info(c *wzlib_traits.WzTraitsContainer) {
 	c.Set("uid", nfo.UniqueID)
 }
 
-func (si *SysInfo) network(c *wzlib_traits.WzTraitsContainer) {
-	nfo := si.host.Info()
-	c.Set("network.MAC", nfo.MACs)
-	c.Set("network.IP", nfo.IPs)
-}
 
 func (si *SysInfo) osInfo(c *wzlib_traits.WzTraitsContainer) {
 	nfo := si.host.Info().OS
