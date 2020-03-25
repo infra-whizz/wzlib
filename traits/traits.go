@@ -18,6 +18,11 @@ func NewTraits(fpath string) *WzTraits {
 	return t
 }
 
+// GetContainer returns a traits container
+func (tl *WzTraits) GetContainer() *WzTraitsContainer {
+	return tl.container
+}
+
 // LoadAttribute to the WzTraits container
 func (tl *WzTraits) LoadAttribute(attr TraitsAttribute) {
 	attr.Load(tl.container)
