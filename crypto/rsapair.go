@@ -3,6 +3,7 @@ package wzlib_crypto // Don't care about Go's "don't use underscores". Should be
 import (
 	"crypto/rand"
 	"crypto/rsa"
+	"crypto/sha512"
 	"crypto/x509"
 	"encoding/asn1"
 	"encoding/gob"
@@ -171,16 +172,28 @@ func (wk *WzRSA) readPEMPublicKey(fileName string) error {
 		}
 	}
 
-	ifc, err := x509.ParsePKIXPublicKey(b)
+	wk.pubKey, err = x509.ParsePKCS1PublicKey(b)
 	if err != nil {
 		return err
 	}
 
-	key, ok := ifc.(*rsa.PublicKey)
-	if !ok {
-		return err
-	}
-	wk.pubKey = key
-
 	return nil
+}
+
+// Encrypt encrypts data with public key
+func (wk *WzRSA) Encrypt(msg []byte) ([]byte, error) {
+	cipher, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, wk.pubKey, msg, nil)
+	if err != nil {
+		return nil, err
+	}
+	return cipher, nil
+}
+
+// Decrypt decrypts data with private key
+func (wk *WzRSA) Decrypt(cipher []byte) ([]byte, error) {
+	data, err := rsa.DecryptOAEP(sha512.New(), rand.Reader, wk.privKey, cipher, nil)
+	if err != nil {
+		return nil, err
+	}
+	return data, nil
 }
