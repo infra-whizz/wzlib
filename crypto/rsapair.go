@@ -180,6 +180,15 @@ func (wk *WzRSA) readPEMPublicKey(fileName string) error {
 	return nil
 }
 
+// Read PEM version of the public RSA key and return it as an array of bytes
+func (wk *WzRSA) GetPublicPEMKey(pkiDir string) (pem []byte, err error) {
+	pub, err := ioutil.ReadFile(path.Join(pkiDir, RSA_PEM_PUBKEY))
+	if err != nil {
+		return nil, err
+	}
+	return pub, nil
+}
+
 // Encrypt encrypts data with public key
 func (wk *WzRSA) Encrypt(msg []byte) ([]byte, error) {
 	cipher, err := rsa.EncryptOAEP(sha512.New(), rand.Reader, wk.pubKey, msg, nil)
