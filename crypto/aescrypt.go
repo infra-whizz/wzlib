@@ -40,6 +40,11 @@ func (wa *WzAES) GenerateKey(pkiDir string) error {
 	return nil
 }
 
+// IsLoaded returns true if key is already loaded.
+func (wa *WzAES) IsLoaded() bool {
+	return wa.key != nil
+}
+
 // LoadKey loads AES token from the pki directory.
 func (wa *WzAES) LoadKey(pkiDir string) error {
 	buff, err := ioutil.ReadFile(path.Join(pkiDir, AES_TOKEN))
