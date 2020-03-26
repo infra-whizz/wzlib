@@ -14,7 +14,8 @@ type WzTraits struct {
 func NewTraits(fpath string) *WzTraits {
 	t := new(WzTraits)
 	t.traitsFileName = fpath
-	t.container = NewWzTraitsContainer().LoadFromFile(t.traitsFileName)
+	t.Reload()
+
 	return t
 }
 
@@ -33,7 +34,8 @@ func (tl *WzTraits) Save() {
 	tl.container.SaveToFile(tl.traitsFileName)
 }
 
-// Load traits data from a file
-func (tl *WzTraits) Load() {
-	tl.container.LoadFromFile(tl.traitsFileName)
+// Reload traits data from a file.
+// If current state wasn't saved, it will flush existing.
+func (tl *WzTraits) Reload() {
+	tl.container = NewWzTraitsContainer().LoadFromFile(tl.traitsFileName)
 }
