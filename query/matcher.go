@@ -1,8 +1,13 @@
+/*
+	Matcher is a sub-query or a part of the entire query.
+	Query on its own can consist of several queries
+	and have logical expressions, like "and", "or".
+*/
+
 package wzlib_query
 
 import (
 	"fmt"
-	"log"
 	"path/filepath"
 	"strings"
 )
@@ -15,12 +20,11 @@ const (
 )
 
 type WzQueryMatcher struct {
-	query        string
-	fqdns        []string // hostnames
-	flags        []string
-	traitKey     string
-	hostnameExpr string
-	qType        int
+	query    string
+	fqdns    []string // hostnames
+	flags    []string
+	traitKey string
+	qType    int
 }
 
 // Constructor
@@ -52,7 +56,7 @@ func (wqm *WzQueryMatcher) parseQuery() {
 		if parts[1] == "" {
 			// flag::hostname
 			wqm.qType = Q_FH
-			wqm.hostnameExpr = parts[2]
+			wqm.fqdns = wqm.getHostnames(parts[2])
 		} else {
 			// flag:trait:value
 			wqm.qType = Q_FTV
@@ -64,8 +68,17 @@ func (wqm *WzQueryMatcher) parseQuery() {
 	} else {
 		// hostname
 		wqm.qType = Q_H
-		wqm.hostnameExpr = parts[0]
+		wqm.fqdns = wqm.getHostnames(parts[0])
 	}
+}
+
+// Get hostnames from the expression
+func (wqm *WzQueryMatcher) getHostnames(expr string) []string {
+	if expr == "" {
+		return nil
+	}
+
+	return strings.Split(strings.ReplaceAll(expr, " ", ""), ",")
 }
 
 /*
@@ -109,20 +122,27 @@ func (wqm *WzQueryMatcher) parseHostnameExpression() {
 }
 
 // matchByHostname matches the hostname if the query type is for matching FQDNs only
-func (wqm *WzQueryMatcher) matchByFqdn(fqdn string) bool {
-	result, err := filepath.Match(wqm.hostnameExpr, fqdn)
-	if err != nil {
-		log.Println("Error matching hostname:", err.Error())
+func (wqm *WzQueryMatcher) filterFqdns(fqdns []string) []string {
+	out := make([]string, 0)
+
+	for _, fqdn := range fqdns {
+		for _, queryFqdn := range wqm.fqdns {
+			result, _ := filepath.Match(queryFqdn, fqdn)
+			if result {
+				out = append(out, fqdn)
+			}
+		}
 	}
-	return result
+
+	return out
 }
 
-// Match the host by FQDN or traits
-func (wqm *WzQueryMatcher) Match() bool {
+// Select from an array of fqdns
+func (wqm *WzQueryMatcher) Select(fqdns []string) []string {
 	switch wqm.qType {
 	case Q_FH, Q_H:
-		return wqm.matchByFqdn("")
+		return wqm.filterFqdns(fqdns)
 	default:
-		return false
+		return make([]string, 0)
 	}
 }
