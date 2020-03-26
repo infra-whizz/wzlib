@@ -6,7 +6,9 @@ import (
 )
 
 const (
-	MSGTYPE_REGISTRATION = iota
+	MSGTYPE_GENERIC = iota // Also undefined when loading
+	MSGTYPE_REGISTRATION
+	MSGTYPE_PING
 	MSGTYPE_RUN_RESULT
 )
 
@@ -17,12 +19,21 @@ type WzGenericMessage struct {
 	Payload map[string]interface{}
 }
 
-// Constructor
-func NewWzGenericMessage(msgType int) *WzGenericMessage {
+// NewWzMessage creates a message of a given type with Jid
+func NewWzMessage(msgType int) *WzGenericMessage {
 	wcm := new(WzGenericMessage)
 	wcm.Jid = wzlib.MakeJid()
 	wcm.Payload = make(map[string]interface{})
 	wcm.Type = msgType
+
+	return wcm
+}
+
+// NewWzGenericMessage creates a generic type of a message with no Jid
+func NewWzGenericMessage() *WzGenericMessage {
+	wcm := new(WzGenericMessage)
+	wcm.Payload = make(map[string]interface{})
+	wcm.Type = MSGTYPE_GENERIC
 
 	return wcm
 }
