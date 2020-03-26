@@ -1,8 +1,8 @@
 package wzlib_traits
 
 import (
-	"log"
 	"io/ioutil"
+	"log"
 
 	"gopkg.in/yaml.v2"
 )
@@ -22,8 +22,10 @@ func NewWzTraitsContainer() *WzTraitsContainer {
 func (wt *WzTraitsContainer) LoadFromFile(fpath string) *WzTraitsContainer {
 	buff, err := ioutil.ReadFile(fpath)
 	if err != nil {
-		log.Println("Unable to read from file:", err.Error())
+		log.Println("Unable to read existing traits from file:", err.Error())
+		return wt
 	}
+
 	err = yaml.Unmarshal(buff, wt.content)
 	if err != nil {
 		panic(err)
