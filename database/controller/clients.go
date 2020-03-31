@@ -1,6 +1,8 @@
 package wzlib_database_controller
 
 import (
+	"log"
+
 	"github.com/jinzhu/gorm"
 )
 
@@ -22,7 +24,14 @@ func (wcc *WzCtrlClientsAPI) setDbh(dbh *gorm.DB) *WzCtrlClientsAPI {
 // Register register a client that just appeared.
 // Registration means "Your public RSA is in the database, now wait"
 func (wcc *WzCtrlClientsAPI) Register(client *WzClient) {
-
+	var clients []WzClient
+	wcc.db.Find(&clients)
+	if len(clients) == 0 {
+		wcc.db.Create(client.SetFingerprint())
+		log.Println("Client", client.Fqdn, "has been registered")
+	} else {
+		log.Println("Client", client.Fqdn, "is already registered, skipping")
+	}
 }
 
 // Accept that was already registered.
