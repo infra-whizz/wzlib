@@ -96,6 +96,7 @@ func (dbh *WzDBH) Open() {
 // Create or update all existing tables
 func (dbh *WzDBH) automigrate() {
 	dbh._db.AutoMigrate(&wzlib_database_controller.WzClient{})
+	log.Println("Automigrated")
 }
 
 // Close database connection
