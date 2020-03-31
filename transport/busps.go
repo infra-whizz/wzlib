@@ -88,6 +88,18 @@ func (wzd *WzdPubSub) Disconnect() {
 func (wzd *WzdPubSub) GetPublisher() *nats.Conn {
 	return wzd.ncp
 }
+
+func (wzd *WzdPubSub) PublishEnvelopeToChannel(channel string, envelope *WzGenericMessage) {
+	data, err := envelope.Serialise()
+	if err != nil {
+		log.Println("Error serialising envelope:", err.Error())
+	} else {
+		if err := wzd.GetPublisher().Publish(channel, data); err != nil {
+			log.Println("Error publishing message:", err.Error())
+		}
+	}
+}
+
 func (wzd *WzdPubSub) GetSubscriber() *nats.Conn {
 	return wzd.ncs
 }
