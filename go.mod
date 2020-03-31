@@ -3,7 +3,11 @@ module github.com/infra-whizz/wzlib
 go 1.13
 
 require (
+	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/elastic/go-sysinfo v1.3.0
+	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/jinzhu/gorm v1.9.12
+	github.com/lib/pq v1.3.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.4 // indirect
 	github.com/nats-io/nats.go v1.9.1
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
