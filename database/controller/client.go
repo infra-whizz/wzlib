@@ -2,6 +2,7 @@ package wzlib_database_controller
 
 import (
 	wzlib_crypto "github.com/infra-whizz/wzlib/crypto"
+	wzlib_transport "github.com/infra-whizz/wzlib/transport"
 )
 
 // WzClient entity object for the database
@@ -23,9 +24,9 @@ func NewWzClient() *WzClient {
 // NewWzClientFromPayload creates an instance of the WzClient and fills-in with the payload
 func NewWzClientFromPayload(payload map[string]interface{}) *WzClient {
 	wcc := new(WzClient)
-	wcc.Fqdn = payload["system.fqdn"].(string)
-	wcc.RsaPk = string(payload["RSA.pub"].([]byte))
-	wcc.Uid = payload["system.id"].(string)
+	wcc.Fqdn = payload[wzlib_transport.PAYLOAD_SYSTEM_FQDN].(string)
+	wcc.Uid = payload[wzlib_transport.PAYLOAD_SYSTEM_ID].(string)
+	wcc.RsaPk = string(payload[wzlib_transport.PAYLOAD_RSA].([]byte))
 
 	return wcc.SetFingerprint()
 }
