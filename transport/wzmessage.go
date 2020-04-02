@@ -37,7 +37,8 @@ const (
 	*/
 	PAYLOAD_BATCH_SIZE = "batch.size"
 
-	PAYLOAD_COMMAND = "command" // specific key of the command, still ad-hoc :-(
+	PAYLOAD_COMMAND        = "command"        // specific key of the command, still ad-hoc :-(
+	PAYLOAD_COMMAND_PARAMS = "command.params" // command params, usually map@strings/interface
 )
 
 // Console Message
