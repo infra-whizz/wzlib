@@ -8,10 +8,10 @@ package wzlib_database
 
 import (
 	"fmt"
-	"log"
 
 	wzlib_database_controller "github.com/infra-whizz/wzlib/database/controller"
 	wzlib_database_worker "github.com/infra-whizz/wzlib/database/worker"
+	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 )
@@ -31,6 +31,8 @@ type WzDBH struct {
 	_sslRootCert string
 	_sslKey      string
 	_sslCert     string
+
+	wzlib_logger.WzLogger
 }
 
 func NewWzDBH() *WzDBH {
@@ -74,16 +76,16 @@ func (dbh *WzDBH) SetUser(user string) *WzDBH {
 
 // Open database connection
 func (dbh *WzDBH) Open() {
-	log.Println("Connecting to the database")
+	dbh.GetLogger().Infoln("Connecting to the database")
 	var err error
 	url := fmt.Sprintf("postgresql://%s@%s:%d/%s?ssl=true&sslmode=require&sslrootcert=%s&sslkey=%s&sslcert=%s",
 		dbh._dbUser, dbh._dbHost, dbh._dbPort, dbh._dbName, dbh._sslRootCert, dbh._sslKey, dbh._sslCert)
 
 	dbh._db, err = gorm.Open("postgres", url)
 	if err != nil {
-		log.Fatal(err)
+		dbh.GetLogger().Fatal(err)
 	}
-	log.Println("Connected to the database")
+	dbh.GetLogger().Infoln("Connected to the database")
 	dbh.automigrate()
 
 	if dbh.controller != nil {
@@ -96,7 +98,7 @@ func (dbh *WzDBH) Open() {
 // Create or update all existing tables
 func (dbh *WzDBH) automigrate() {
 	dbh._db.AutoMigrate(&wzlib_database_controller.WzClient{})
-	log.Println("Automigrated")
+	dbh.GetLogger().Infoln("Schema was auto-migrated")
 }
 
 // Close database connection
@@ -104,7 +106,7 @@ func (dbh *WzDBH) Close() {
 	if dbh._db != nil {
 		dbh._db.Close()
 	} else {
-		log.Println("Attempting to close unopened database reference")
+		dbh.GetLogger().Warningln("Attempting to close unopened database reference")
 	}
 }
 

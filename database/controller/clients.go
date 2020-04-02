@@ -1,14 +1,15 @@
 package wzlib_database_controller
 
 import (
-	"log"
-
+	"github.com/infra-whizz/wzlib"
+	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	"github.com/jinzhu/gorm"
 )
 
 // Everything with client
 type WzCtrlClientsAPI struct {
 	db *gorm.DB
+	wzlib_logger.WzLogger
 }
 
 func NewWzCtrlClientsAPI() *WzCtrlClientsAPI {
@@ -23,15 +24,20 @@ func (wcc *WzCtrlClientsAPI) setDbh(dbh *gorm.DB) *WzCtrlClientsAPI {
 
 // Register register a client that just appeared.
 // Registration means "Your public RSA is in the database, now wait"
-func (wcc *WzCtrlClientsAPI) Register(client *WzClient) {
-	var clients []WzClient
-	wcc.db.Find(&clients)
-	if len(clients) == 0 {
-		wcc.db.Create(client.SetFingerprint())
-		log.Println("Client", client.Fqdn, "has been registered")
+func (wcc *WzCtrlClientsAPI) Register(client *WzClient) int {
+	var existing WzClient
+	var status int
+	wcc.db.Where("rsa_fp = ?", client.RsaFp).First(&existing)
+	if existing.RsaFp == "" {
+		client.Status = wzlib.CLIENT_STATUS_NEW
+		wcc.db.Create(client)
+		status = client.Status
+		wcc.GetLogger().Infoln("Client", client.Fqdn, "has been registered")
 	} else {
-		log.Println("Client", client.Fqdn, "is already registered, skipping")
+		wcc.GetLogger().Debugln("Client", client.Fqdn, "is already registered, skipping")
+		status = existing.Status
 	}
+	return status
 }
 
 // Accept that was already registered.
@@ -49,7 +55,16 @@ func (wcc *WzCtrlClientsAPI) Reject() {}
 func (wcc *WzCtrlClientsAPI) Delete() {}
 
 // GetRegistered returns a list of new clients
-func (wcc *WzCtrlClientsAPI) GetNew() {}
+func (wcc *WzCtrlClientsAPI) GetRegistered() []*WzClient {
+	var clients []*WzClient
+	wcc.db.Where("status = ?", wzlib.CLIENT_STATUS_NEW).Find(&clients)
+
+	// Do not transfer RSA keys
+	for _, system := range clients {
+		system.RsaPk = ""
+	}
+	return clients
+}
 
 // GetRejected returns a list of new clients
 func (wcc *WzCtrlClientsAPI) GetRejected() {}

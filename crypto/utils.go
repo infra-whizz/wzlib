@@ -5,15 +5,19 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"hash"
-	"log"
 	"os"
 	"strings"
+
+	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 )
 
-type WzCryptoUtils struct{}
+type WzCryptoUtils struct {
+	wzlib_logger.WzLogger
+}
 
 func NewWzCryptoUtils() *WzCryptoUtils {
-	return new(WzCryptoUtils)
+	wcu := new(WzCryptoUtils)
+	return wcu
 }
 
 func (wcu *WzCryptoUtils) encodeDigest(digest *hash.Hash) string {
@@ -43,7 +47,7 @@ func (wcu *WzCryptoUtils) PEMKeyFingerprintFromString(key string) string {
 		}
 		_, err := digest.Write([]byte(cipherline))
 		if err != nil {
-			log.Printf("Error collecting SHA256 hash: %s", err.Error())
+			wcu.GetLogger().Errorf("Error collecting SHA256 hash: %s", err.Error())
 		}
 	}
 	return wcu.encodeDigest(&digest)
@@ -54,7 +58,7 @@ func (wcu *WzCryptoUtils) PEMKeyFingerprintFromFile(keypath string) string {
 	var fp string
 	fh, err := os.Open(keypath)
 	if err != nil {
-		log.Printf("Unable to open PEM key file %s: %s\n", keypath, err.Error())
+		wcu.GetLogger().Errorf("Unable to open PEM key file %s: %s\n", keypath, err.Error())
 	} else {
 		digest := sha256.New()
 		defer fh.Close()
@@ -66,7 +70,7 @@ func (wcu *WzCryptoUtils) PEMKeyFingerprintFromFile(keypath string) string {
 			}
 			_, err := digest.Write([]byte(cipherline))
 			if err != nil {
-				log.Printf("Error collecting SHA256 hash: %s", err.Error())
+				wcu.GetLogger().Errorf("Error collecting SHA256 hash: %s", err.Error())
 			}
 		}
 		fp = wcu.encodeDigest(&digest)

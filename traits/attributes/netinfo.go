@@ -2,10 +2,9 @@ package wzlib_traits_attributes
 
 import (
 	"fmt"
-	"log"
 
 	"github.com/elastic/go-sysinfo"
-
+	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	wzlib_traits "github.com/infra-whizz/wzlib/traits"
 	"github.com/shirou/gopsutil/net"
 )
@@ -14,6 +13,7 @@ import (
 type NetInfo struct {
 	KEY_PREFIX string
 	container  *wzlib_traits.WzTraitsContainer
+	wzlib_logger.WzLogger
 }
 
 // NewNetInfo is a constructor to SysInfo class
@@ -33,7 +33,7 @@ func (ni *NetInfo) Load(container *wzlib_traits.WzTraitsContainer) {
 func (ni *NetInfo) network() {
 	host, err := sysinfo.Host()
 	if err != nil {
-		log.Println("Error getting sysinfo for the host:", err.Error())
+		ni.GetLogger().Errorln("Error getting sysinfo for the host:", err.Error())
 	}
 	nfo := host.Info()
 	ni.container.Set(fmt.Sprintf("%s.MAC", ni.KEY_PREFIX), nfo.MACs)
@@ -43,7 +43,7 @@ func (ni *NetInfo) network() {
 func (ni *NetInfo) interfaces() {
 	ifaces, err := net.Interfaces()
 	if err != nil {
-		log.Println("Error getting network interface:", err.Error())
+		ni.GetLogger().Errorln("Error getting network interface:", err.Error())
 		return
 	}
 
