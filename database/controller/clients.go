@@ -55,12 +55,14 @@ func (wcc *WzCtrlClientsAPI) Register(client *WzClient) int {
 // This makes client listable for the workers.
 // But the reconciliation needs to be extra called elsewhere.
 func (wcc *WzCtrlClientsAPI) Accept(fingerprints ...string) (missing []string) {
+	// XXX: This should also return a list of accepted, so the target machines will get a notification
 	return wcc.setStatusByFingerprints(wzlib.CLIENT_STATUS_ACCEPTED, "Accepted", fingerprints...)
 }
 
 // Reject sets its status as "rejected", but keeps in the database
 // everything: FQDN, machine ID and RSA pubkey. Used for black-listing.
 func (wcc *WzCtrlClientsAPI) Reject(fingerprints ...string) (missing []string) {
+	// XXX: This should also return a list of rejected, so the target machines will get a notification
 	return wcc.setStatusByFingerprints(wzlib.CLIENT_STATUS_REJECTED, "Rejected", fingerprints...)
 }
 
