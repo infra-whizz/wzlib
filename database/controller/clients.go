@@ -91,7 +91,22 @@ func (wcc *WzCtrlClientsAPI) setStatusByFingerprints(status int, msg string, fin
 
 // Delete just deletes everything of the client.
 // This client is eligible to be registered again.
-func (wcc *WzCtrlClientsAPI) Delete() {}
+func (wcc *WzCtrlClientsAPI) Delete(fingerprints ...string) (missing []string) {
+	missing = make([]string, 0)
+	for _, fp := range fingerprints {
+		client := &WzClient{}
+		wcc.db.Where("rsa_fp LIKE ?", fp+"%").First(&client)
+		if client.RsaFp != "" {
+			wcc.db.Model(&client).Where("rsa_fp = ?", client.RsaFp).Delete(WzClient{})
+			wcc.GetLogger().Infof("Deleted '%s' (key: %s...%s)", client.Fqdn, client.RsaFp[:8], client.RsaFp[len(client.RsaFp)-8:])
+		} else {
+			missing = append(missing, fp)
+		}
+	}
+
+	// XXX: This should also return a list of deleted, so the target machines will get a notification
+	return
+}
 
 // GetRegistered returns a list of new clients
 func (wcc *WzCtrlClientsAPI) GetRegistered() []*WzClient {
