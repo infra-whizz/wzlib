@@ -1,16 +1,16 @@
 package wzlib_traits_attributes
 
 import (
-	"log"
-
 	"github.com/elastic/go-sysinfo"
 	"github.com/elastic/go-sysinfo/types"
+	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	wzlib_traits "github.com/infra-whizz/wzlib/traits"
 )
 
 // SysInfo class
 type SysInfo struct {
 	host types.Host
+	wzlib_logger.WzLogger
 }
 
 // NewSysInfo is a constructor to SysInfo class
@@ -20,7 +20,7 @@ func NewSysInfo() *SysInfo {
 	var err error
 	si.host, err = sysinfo.Host()
 	if err != nil {
-		log.Panic(err)
+		si.GetLogger().Panic(err)
 	}
 	return si
 }
@@ -46,7 +46,6 @@ func (si *SysInfo) info(c *wzlib_traits.WzTraitsContainer) {
 	c.Set("kernel_version", nfo.KernelVersion)
 	c.Set("uid", nfo.UniqueID)
 }
-
 
 func (si *SysInfo) osInfo(c *wzlib_traits.WzTraitsContainer) {
 	nfo := si.host.Info().OS

@@ -1,10 +1,10 @@
 package wzlib_transport
 
-import (
-	"log"
-)
+import wzlib_logger "github.com/infra-whizz/wzlib/logger"
 
-type WzEventMsgUtils struct{}
+type WzEventMsgUtils struct {
+	wzlib_logger.WzLogger
+}
 
 // NewWzEventMsgUtils creates a constructor for message utils
 func NewWzEventMsgUtils() *WzEventMsgUtils {
@@ -13,10 +13,10 @@ func NewWzEventMsgUtils() *WzEventMsgUtils {
 
 // GetMessage converts message bytes into a WzGenericMessage type
 func (mu *WzEventMsgUtils) GetMessage(data []byte) (envelope *WzGenericMessage) {
-	log.Println("Decoding message of", len(data), "bytes")
+	mu.GetLogger().Debugln("Decoding message of", len(data), "bytes")
 	envelope = NewWzGenericMessage()
 	if err := envelope.LoadBytes(data); err != nil {
-		log.Println("Got garbled console message:", err.Error())
+		mu.GetLogger().Errorln("Got garbled console message:", err.Error())
 		envelope = nil
 	}
 	return
