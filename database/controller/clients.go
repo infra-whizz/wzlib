@@ -1,6 +1,9 @@
 package wzlib_database_controller
 
 import (
+	"regexp"
+	"strings"
+
 	"github.com/infra-whizz/wzlib"
 	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	"github.com/jinzhu/gorm"
@@ -110,7 +113,17 @@ func (wcc *WzCtrlClientsAPI) GetRegisteredAmount() int64 {
 }
 
 // Search for clients based on specific query
-func (wcc *WzCtrlClientsAPI) Search() {}
+func (wcc *WzCtrlClientsAPI) Search(query string) []*WzClient {
+	var clients []*WzClient
+
+	if strings.Contains(query, "*") {
+		wcc.db.Where("fqdn LIKE ?", regexp.MustCompile(`\*+`).ReplaceAllString(query, "%")).Find(&clients)
+	} else {
+		wcc.db.Where("fqdn = ?", query).Find(&clients)
+	}
+	wcc.removeClientsRSA(clients)
+	return clients
+}
 
 // GetByFQDN returns client data (struct?) by FQDN
 func (wcc *WzCtrlClientsAPI) GetByFQDN() {}
