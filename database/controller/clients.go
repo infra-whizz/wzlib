@@ -52,11 +52,21 @@ func (wcc *WzCtrlClientsAPI) Register(client *WzClient) int {
 // This makes client listable for the workers.
 // But the reconciliation needs to be extra called elsewhere.
 func (wcc *WzCtrlClientsAPI) Accept(fingerprints ...string) (missing []string) {
+	return wcc.setStatusByFingerprints(wzlib.CLIENT_STATUS_ACCEPTED, "Accepted", fingerprints...)
+}
+
+// Reject sets its status as "rejected", but keeps in the database
+// everything: FQDN, machine ID and RSA pubkey. Used for black-listing.
+func (wcc *WzCtrlClientsAPI) Reject(fingerprints ...string) (missing []string) {
+	return wcc.setStatusByFingerprints(wzlib.CLIENT_STATUS_REJECTED, "Rejected", fingerprints...)
+}
+
+func (wcc *WzCtrlClientsAPI) setStatusByFingerprints(status int, msg string, fingerprints ...string) (missing []string) {
 	missing = make([]string, 0)
 	if len(fingerprints) == 0 {
 		// all at once
 		client := &WzClient{}
-		wcc.db.Model(&client).Where("status = ?", wzlib.CLIENT_STATUS_NEW).Update("status", wzlib.CLIENT_STATUS_ACCEPTED)
+		wcc.db.Model(&client).Where("status = ?", wzlib.CLIENT_STATUS_NEW).Update("status", status)
 	} else {
 		// by fingerprints
 		for _, fp := range fingerprints {
@@ -64,8 +74,8 @@ func (wcc *WzCtrlClientsAPI) Accept(fingerprints ...string) (missing []string) {
 			wcc.db.Where("status = ? AND rsa_fp LIKE ?", wzlib.CLIENT_STATUS_NEW, fp+"%").First(&client)
 			if client.RsaFp != "" {
 				finger := client.RsaFp
-				wcc.db.Model(&client).Where("status = ? AND rsa_fp = ?", wzlib.CLIENT_STATUS_NEW, finger).Update("status", wzlib.CLIENT_STATUS_ACCEPTED)
-				wcc.GetLogger().Infof("Accepted '%s' (key: %s...%s)", client.Fqdn, client.RsaFp[:8], client.RsaFp[len(client.RsaFp)-8:])
+				wcc.db.Model(&client).Where("status = ? AND rsa_fp = ?", wzlib.CLIENT_STATUS_NEW, finger).Update("status", status)
+				wcc.GetLogger().Infof("%s '%s' (key: %s...%s)", msg, client.Fqdn, client.RsaFp[:8], client.RsaFp[len(client.RsaFp)-8:])
 			} else {
 				missing = append(missing, fp)
 			}
@@ -73,10 +83,6 @@ func (wcc *WzCtrlClientsAPI) Accept(fingerprints ...string) (missing []string) {
 	}
 	return
 }
-
-// Reject sets its status as "rejected", but keeps in the database
-// everything: FQDN, machine ID and RSA pubkey. Used for black-listing.
-func (wcc *WzCtrlClientsAPI) Reject() {}
 
 // Delete just deletes everything of the client.
 // This client is eligible to be registered again.
