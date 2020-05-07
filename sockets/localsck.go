@@ -147,8 +147,15 @@ func (wls *WzLocalSocketCommunicator) Request(command string) string {
 	}
 
 	repl := make([]byte, 0x400)
-	wls.sockConn.Write([]byte(command))
-	wls.sockConn.Read(repl)
+	_, err := wls.sockConn.Write([]byte(command))
+	if err != nil {
+		wls.GetLogger().Errorf("Unable to send a request to the local instance via Unix socket: %s", err.Error())
+	} else {
+		_, err := wls.sockConn.Read(repl)
+		if err != nil {
+			wls.GetLogger().Errorf("Unable to read local instance response via Unix socket: %s", err.Error())
+		}
+	}
 
 	return string(repl)
 }
