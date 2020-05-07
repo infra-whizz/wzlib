@@ -1,6 +1,7 @@
 package wzlib_crypto // Don't care about Go's "don't use underscores". Should be a better package names and read them nicer.
 
 import (
+	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
 	"crypto/sha512"
@@ -205,4 +206,26 @@ func (wk *WzRSA) Decrypt(cipher []byte) ([]byte, error) {
 		return nil, err
 	}
 	return data, nil
+}
+
+// Sign a specific content with the RSA private key
+func (wk *WzRSA) Sign(data []byte) ([]byte, error) {
+	seeder := rand.Reader
+	hashed := sha512.Sum512(data)
+	sig, err := rsa.SignPKCS1v15(seeder, wk.privKey, crypto.SHA512, hashed[:])
+	if err != nil {
+		return nil, err
+	}
+	return sig, nil
+}
+
+// Verify a specific signed content with the RSA public key
+func (wk *WzRSA) Verify(data []byte, signature []byte) (bool, error) {
+	hashed := sha512.Sum512(data)
+	err := rsa.VerifyPKCS1v15(wk.pubKey, crypto.SHA512, hashed[:], signature)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
