@@ -1,6 +1,11 @@
 package wzlib_crypto
 
-import wzlib_logger "github.com/infra-whizz/wzlib/logger"
+import (
+	"strings"
+
+	wzlib_logger "github.com/infra-whizz/wzlib/logger"
+	wzlib_transport "github.com/infra-whizz/wzlib/transport"
+)
 
 // WzClientCrypto class for all RSA/AES operations
 type WzCryptoBundle struct {
@@ -52,4 +57,20 @@ func (wcb *WzCryptoBundle) GetAES() *WzAES {
 // GetUtils returns crypto utils
 func (wcb *WzCryptoBundle) GetUtils() *WzCryptoUtils {
 	return wcb.util
+}
+
+// SignMessage signs all message content, return serialised byte array
+func (wcb *WzCryptoBundle) SignMessage(msg *wzlib_transport.WzGenericMessage) ([]byte, error) {
+	var buff strings.Builder
+	buff.WriteString(msg.Payload[wzlib_transport.PAYLOAD_COMMAND].(string))
+	buff.WriteString(msg.Jid)
+
+	sig, err := wcb.GetRSA().Sign([]byte(buff.String()))
+	if err != nil {
+		return nil, err
+	}
+
+	msg.Payload[wzlib_transport.PAYLOAD_RSA_SIGNATURE] = sig
+
+	return msg.Serialise()
 }
