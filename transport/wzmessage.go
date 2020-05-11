@@ -15,11 +15,12 @@ const (
 
 // Message keys
 const (
-	PAYLOAD_RSA           = "rsa.pub"       // cipher text in PEM
-	PAYLOAD_RSA_SIGNATURE = "rsa.signature" // signature
-	PAYLOAD_SYSTEM_ID     = "system.id"     // unique string of system ID
-	PAYLOAD_SYSTEM_FQDN   = "system.fqdn"   // Host FQDN or just a hostname
-	PAYLOAD_PING_ID       = "ping.id"       // ID of a ping request
+	PAYLOAD_RSA             = "rsa.pub"     // cipher text in PEM
+	PAYLOAD_RSA_SIGNATURE   = "rsa.sig"     // signature
+	PAYLOAD_RSA_FINGERPRINT = "rsa.fp"      // fingerprint
+	PAYLOAD_SYSTEM_ID       = "system.id"   // unique string of system ID
+	PAYLOAD_SYSTEM_FQDN     = "system.fqdn" // Host FQDN or just a hostname
+	PAYLOAD_PING_ID         = "ping.id"     // ID of a ping request
 
 	/*
 		Function return payload. The value is a nested string/interface mapping

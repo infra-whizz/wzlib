@@ -71,6 +71,7 @@ func (wcb *WzCryptoBundle) SignMessage(msg *wzlib_transport.WzGenericMessage) ([
 	}
 
 	msg.Payload[wzlib_transport.PAYLOAD_RSA_SIGNATURE] = sig
+	msg.Payload[wzlib_transport.PAYLOAD_RSA_FINGERPRINT] = wcb.GetRSA().GetPubFp()
 
 	return msg.Serialise()
 }
