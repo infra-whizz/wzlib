@@ -25,12 +25,15 @@ const (
 type WzRSA struct {
 	privKey *rsa.PrivateKey
 	pubKey  *rsa.PublicKey
+	pubFp   string
+	utils   *WzCryptoUtils
 }
 
 // NewWzRSA creates an instance of a class that takes care
 // of keypair management operations (generation, rotation, encrytion etc).
 func NewWzRSA() *WzRSA {
 	wk := new(WzRSA)
+	wk.utils = NewWzCryptoUtils()
 	return wk
 }
 
@@ -162,6 +165,8 @@ func (wk *WzRSA) readPEMPublicKey(fileName string) error {
 		return err
 	}
 
+	wk.pubFp = wk.utils.PEMKeyFingerprintFromBytes(pub)
+
 	block, _ := pem.Decode(pub)
 	enc := x509.IsEncryptedPEMBlock(block)
 	b := block.Bytes
@@ -228,4 +233,9 @@ func (wk *WzRSA) Verify(data []byte, signature []byte) (bool, error) {
 	}
 
 	return true, nil
+}
+
+// GetPubFp returns a fingerprint of public key
+func (wk *WzRSA) GetPubFp() string {
+	return wk.pubFp
 }
