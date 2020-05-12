@@ -8,13 +8,21 @@ import (
 	"github.com/jinzhu/gorm"
 )
 
+const (
+	OWNER_APP_REMOTE = "remote"
+	OWNER_APP_CTRL   = "controller"
+	OWNER_APP_WORKER = "worker"
+	OWNER_APP_CLIENT = "client"
+)
+
 // WzPEMKeyEntity entity object for the database of PEM keys
 type WzPEMKeyEntity struct {
 	ID        int    `gorm:"primary_key"`
 	RsaFp     string `gorm:"unique; not null"`
 	RsaPk     []byte `gorm:"unique; not null"`
-	MachineId string `gorm:"unique;"`
-	Fqdn      string `gorm:"unique;"`
+	MachineId string `gorm:"unique"`
+	Fqdn      string `gorm:"unique"`
+	Owner     string `gorm:"not null"`
 }
 
 type WzCtrlKeysAPI struct {
@@ -48,6 +56,8 @@ func (wck *WzCtrlKeysAPI) AddRSAPublicPEM(keypem []byte, machineid string, fqdn 
 			RsaFp:     fingerprint,
 			RsaPk:     keypem,
 			MachineId: machineid,
+			Owner:     owner,
+			Fqdn:      fqdn,
 		})
 	}
 
