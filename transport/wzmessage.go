@@ -3,6 +3,8 @@ package wzlib_transport
 import (
 	"strings"
 
+	wzlib_utils "github.com/infra-whizz/wzlib/utils"
+
 	"github.com/infra-whizz/wzlib"
 	"github.com/vmihailenco/msgpack/v4"
 )
@@ -50,6 +52,7 @@ type WzGenericMessage struct {
 	Jid     string
 	Type    int
 	Payload map[string]interface{}
+	wzlib_utils.WzMachineIDUtilConsumer
 }
 
 // NewWzMessage creates a message of a given type with Jid
@@ -58,7 +61,7 @@ func NewWzMessage(msgType int) *WzGenericMessage {
 	wcm.Jid = wzlib.MakeJid()
 	wcm.Payload = make(map[string]interface{})
 	wcm.Payload[PAYLOAD_COMMAND] = ""
-	wcm.Payload[PAYLOAD_SYSTEM_ID] = ""
+	wcm.Payload[PAYLOAD_SYSTEM_ID] = wcm.GetMachineIdUtil().GetMachineId()
 	wcm.Type = msgType
 
 	return wcm
