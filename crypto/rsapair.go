@@ -233,9 +233,13 @@ func (wk *WzRSA) Sign(data []byte) ([]byte, error) {
 
 // VerifyPerm a specific signed content with the RSA public key in PEM format
 func (wk *WzRSA) VerifyPem(pubkey []byte, data []byte, signature []byte) (bool, error) {
+	parsedPubKey, err := wk.readPemPublicKeyFromBytes(pubkey)
+	if err != nil {
+		return false, err
+	}
 
 	hashed := sha512.Sum512(data)
-	err := rsa.VerifyPKCS1v15(wk.pubKey, crypto.SHA512, hashed[:], signature)
+	err = rsa.VerifyPKCS1v15(parsedPubKey, crypto.SHA512, hashed[:], signature)
 	if err != nil {
 		return false, err
 	}
