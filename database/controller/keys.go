@@ -88,3 +88,13 @@ func (wck *WzCtrlKeysAPI) ListRSAPublicPEMByOwner(owner string) []*WzPEMKeyEntit
 	wck.db.Where("owner = ?", owner).Find(&keys)
 	return keys
 }
+
+// GetRSAPublicPEMByFingerprint returns a public key body
+func (wck *WzCtrlKeysAPI) GetRSAPublicPEMByFingerprint(fingerprint string) []byte {
+	key := &WzPEMKeyEntity{}
+	wck.db.Where("rsa_fp = ?", fingerprint).First(&key)
+	if key.RsaFp == fingerprint {
+		return key.RsaPk
+	}
+	return nil
+}
