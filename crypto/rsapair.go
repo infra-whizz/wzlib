@@ -166,24 +166,31 @@ func (wk *WzRSA) readPEMPublicKey(fileName string) error {
 	}
 
 	wk.pubFp = wk.utils.PEMKeyFingerprintFromBytes(pub)
+	wk.pubKey, err = wk.readPemPublicKeyFromBytes(pub)
 
-	block, _ := pem.Decode(pub)
+	return err
+}
+
+func (wk *WzRSA) readPemPublicKeyFromBytes(key []byte) (*rsa.PublicKey, error) {
+	block, _ := pem.Decode(key)
 	enc := x509.IsEncryptedPEMBlock(block)
 	b := block.Bytes
 
+	var err error
 	if enc {
 		b, err = x509.DecryptPEMBlock(block, nil)
 		if err != nil {
-			return err
+			return nil, err
 		}
 	}
 
-	wk.pubKey, err = x509.ParsePKCS1PublicKey(b)
+	var pubKey *rsa.PublicKey
+	pubKey, err = x509.ParsePKCS1PublicKey(b)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return pubKey, nil
 }
 
 // Read PEM version of the public RSA key and return it as an array of bytes
@@ -224,8 +231,9 @@ func (wk *WzRSA) Sign(data []byte) ([]byte, error) {
 	return sig, nil
 }
 
-// Verify a specific signed content with the RSA public key
-func (wk *WzRSA) Verify(data []byte, signature []byte) (bool, error) {
+// VerifyPerm a specific signed content with the RSA public key in PEM format
+func (wk *WzRSA) VerifyPem(pubkey []byte, data []byte, signature []byte) (bool, error) {
+
 	hashed := sha512.Sum512(data)
 	err := rsa.VerifyPKCS1v15(wk.pubKey, crypto.SHA512, hashed[:], signature)
 	if err != nil {

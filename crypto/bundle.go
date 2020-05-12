@@ -61,11 +61,7 @@ func (wcb *WzCryptoBundle) GetUtils() *WzCryptoUtils {
 
 // SignMessage signs all message content, return serialised byte array
 func (wcb *WzCryptoBundle) SignMessage(msg *wzlib_transport.WzGenericMessage) ([]byte, error) {
-	var buff strings.Builder
-	buff.WriteString(msg.Payload[wzlib_transport.PAYLOAD_COMMAND].(string))
-	buff.WriteString(msg.Jid)
-
-	sig, err := wcb.GetRSA().Sign([]byte(buff.String()))
+	sig, err := wcb.GetRSA().Sign(wcb.getSignedMessageContent(msg))
 	if err != nil {
 		return nil, err
 	}
@@ -74,4 +70,28 @@ func (wcb *WzCryptoBundle) SignMessage(msg *wzlib_transport.WzGenericMessage) ([
 	msg.Payload[wzlib_transport.PAYLOAD_RSA_FINGERPRINT] = wcb.GetRSA().GetPubFp()
 
 	return msg.Serialise()
+}
+
+// Extract certain fields together with message JID, join them into one message body and sign.
+// The same content is used to verify the message authenticity
+func (wcb *WzCryptoBundle) getSignedMessageContent(msg *wzlib_transport.WzGenericMessage) []byte {
+	var buff strings.Builder
+	buff.WriteString(msg.Payload[wzlib_transport.PAYLOAD_COMMAND].(string))
+	buff.WriteString(msg.Jid)
+
+	return []byte(buff.String())
+}
+
+// VerifyMessageSignature from RSA PEM key
+func (wcb *WzCryptoBundle) VerifyMessageSignature(keypem []byte, msg *wzlib_transport.WzGenericMessage) bool {
+	sig, ex := msg.Payload[wzlib_transport.PAYLOAD_RSA_SIGNATURE]
+	if !ex {
+		return false
+	}
+
+	ret, err := wcb.GetRSA().VerifyPem(keypem, wcb.getSignedMessageContent(msg), sig.([]byte))
+	if err != nil {
+		wcb.GetLogger().Errorf("Error verifying message signature: %s", err.Error())
+	}
+	return ret
 }
