@@ -62,10 +62,14 @@ func (wmid *WzMachineIDUtil) GetMachineId() string {
 // 2. If empty, copy from /etc/machine-id
 // 3. If nothing on #2, create own one to filePath
 func (wmid *WzMachineIDUtil) setupMachineId() {
+	systemdMidFPath := "/etc/machine-id"
+	if wmid.filePath == "" {
+		wmid.filePath = systemdMidFPath
+	}
 	mid, err := ioutil.ReadFile(wmid.filePath)
 	if err != nil {
 		wmid.GetLogger().Debugf("File %s was not found", wmid.filePath)
-		mid, err = ioutil.ReadFile("/etc/machine-idx")
+		mid, err = ioutil.ReadFile(systemdMidFPath)
 		if err != nil {
 			wmid.GetLogger().Debugf("This system has no /etc/machine-id file, creating a replacement.")
 
@@ -73,8 +77,10 @@ func (wmid *WzMachineIDUtil) setupMachineId() {
 			io.WriteString(hasher, wzlib.MakeJid())
 			mid = []byte(fmt.Sprintf("%x", hasher.Sum(nil)))
 		}
-		if err := ioutil.WriteFile(wmid.filePath, mid, 0644); err != nil {
-			wmid.GetLogger().Errorf("Unable to duplicate machine id: %s", err.Error())
+		if wmid.filePath != systemdMidFPath {
+			if err := ioutil.WriteFile(wmid.filePath, mid, 0644); err != nil {
+				wmid.GetLogger().Errorf("Unable to duplicate machine id: %s", err.Error())
+			}
 		}
 	}
 	wmid.machineid = strings.TrimSpace(string(mid))
