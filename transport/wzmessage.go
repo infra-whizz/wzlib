@@ -1,6 +1,8 @@
 package wzlib_transport
 
 import (
+	"strings"
+
 	"github.com/infra-whizz/wzlib"
 	"github.com/vmihailenco/msgpack/v4"
 )
@@ -55,6 +57,8 @@ func NewWzMessage(msgType int) *WzGenericMessage {
 	wcm := new(WzGenericMessage)
 	wcm.Jid = wzlib.MakeJid()
 	wcm.Payload = make(map[string]interface{})
+	wcm.Payload[PAYLOAD_COMMAND] = ""
+	wcm.Payload[PAYLOAD_SYSTEM_ID] = ""
 	wcm.Type = msgType
 
 	return wcm
@@ -77,4 +81,21 @@ func (wcm *WzGenericMessage) Serialise() ([]byte, error) {
 // LoadBytes loads the message from bytes
 func (wcm *WzGenericMessage) LoadBytes(data []byte) error {
 	return msgpack.Unmarshal(data, wcm)
+}
+
+// GetSignableMessageContent as bytes
+// Extract certain fields together with message JID, join them into one message body and sign.
+// The same content is used to verify the message authenticity
+func (wcb *WzGenericMessage) GetSignableMessageContent() []byte {
+	var buff strings.Builder
+
+	if wcb.Payload[PAYLOAD_SYSTEM_ID] == "" {
+		panic("Message cannot be signed: system id is not set!")
+	}
+
+	buff.WriteString(wcb.Payload[PAYLOAD_COMMAND].(string))
+	buff.WriteString(wcb.Payload[PAYLOAD_SYSTEM_ID].(string))
+	buff.WriteString(wcb.Jid)
+
+	return []byte(buff.String())
 }

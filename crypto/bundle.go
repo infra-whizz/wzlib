@@ -1,8 +1,6 @@
 package wzlib_crypto
 
 import (
-	"strings"
-
 	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	wzlib_transport "github.com/infra-whizz/wzlib/transport"
 )
@@ -61,7 +59,7 @@ func (wcb *WzCryptoBundle) GetUtils() *WzCryptoUtils {
 
 // SignMessage signs all message content, return serialised byte array
 func (wcb *WzCryptoBundle) SignMessage(msg *wzlib_transport.WzGenericMessage) ([]byte, error) {
-	sig, err := wcb.GetRSA().Sign(wcb.getSignedMessageContent(msg))
+	sig, err := wcb.GetRSA().Sign(msg.GetSignableMessageContent())
 	if err != nil {
 		return nil, err
 	}
@@ -72,16 +70,6 @@ func (wcb *WzCryptoBundle) SignMessage(msg *wzlib_transport.WzGenericMessage) ([
 	return msg.Serialise()
 }
 
-// Extract certain fields together with message JID, join them into one message body and sign.
-// The same content is used to verify the message authenticity
-func (wcb *WzCryptoBundle) getSignedMessageContent(msg *wzlib_transport.WzGenericMessage) []byte {
-	var buff strings.Builder
-	buff.WriteString(msg.Payload[wzlib_transport.PAYLOAD_COMMAND].(string))
-	buff.WriteString(msg.Jid)
-
-	return []byte(buff.String())
-}
-
 // VerifyMessageSignature from RSA PEM key
 func (wcb *WzCryptoBundle) VerifyMessageSignature(keypem []byte, msg *wzlib_transport.WzGenericMessage) bool {
 	sig, ex := msg.Payload[wzlib_transport.PAYLOAD_RSA_SIGNATURE]
@@ -89,7 +77,7 @@ func (wcb *WzCryptoBundle) VerifyMessageSignature(keypem []byte, msg *wzlib_tran
 		return false
 	}
 
-	ret, err := wcb.GetRSA().VerifyPem(keypem, wcb.getSignedMessageContent(msg), sig.([]byte))
+	ret, err := wcb.GetRSA().VerifyPem(keypem, msg.GetSignableMessageContent(), sig.([]byte))
 	if err != nil {
 		wcb.GetLogger().Errorf("Error verifying message signature: %s", err.Error())
 	}
