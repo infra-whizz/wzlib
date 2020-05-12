@@ -44,7 +44,7 @@ func (wck *WzCtrlKeysAPI) setDbh(dbh *gorm.DB) *WzCtrlKeysAPI {
 
 // AddRSAPublicPEM returns client's RSA public key in PEM format, queried by the machine ID.
 // the fqdn is to merely indicate what machine is holding it, but the key is tied up to the machine ID.
-func (wck *WzCtrlKeysAPI) AddRSAPublicPEM(keypem []byte, machineid string, fqdn string) error {
+func (wck *WzCtrlKeysAPI) AddRSAPublicPEM(keypem []byte, machineid string, fqdn string, owner string) error {
 	if machineid == "" {
 		return fmt.Errorf("Unable to add PEM key: machine ID required.")
 	}
