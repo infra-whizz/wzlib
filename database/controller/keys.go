@@ -81,3 +81,10 @@ func (wck *WzCtrlKeysAPI) RemoveRSAPublicPEM(fingerprint string) error {
 		return fmt.Errorf("PEM key not found by the given fingerprint")
 	}
 }
+
+// ListRSAPublicPEM returns a list of registered public RSA keys, filtered by owner app.
+func (wck *WzCtrlKeysAPI) ListRSAPublicPEMByOwner(owner string) []*WzPEMKeyEntity {
+	var keys []*WzPEMKeyEntity
+	wck.db.Where("owner = ?", owner).Find(&keys)
+	return keys
+}
