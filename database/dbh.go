@@ -97,7 +97,7 @@ func (dbh *WzDBH) Open() {
 
 // Create or update all existing tables
 func (dbh *WzDBH) automigrate() {
-	dbh._db.AutoMigrate(&wzlib_database_controller.WzClient{})
+	dbh._db.AutoMigrate(&wzlib_database_controller.WzClient{}, &wzlib_database_controller.WzPEMKeyEntity{})
 	dbh.GetLogger().Infoln("Schema was auto-migrated")
 }
 
