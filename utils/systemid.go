@@ -12,6 +12,19 @@ import (
 	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 )
 
+var _MachineIDUtil *WzMachineIDUtil
+
+type WzMachineIDUtilConsumer struct{}
+
+// GetMAchineIdUtil returns machine ID instance
+func (wzid WzMachineIDUtilConsumer) GetMachineIdUtil() *WzMachineIDUtil {
+	if _MachineIDUtil == nil {
+		panic("MachineID utility was not properly initialised yet")
+	}
+
+	return _MachineIDUtil
+}
+
 // WzMachineIDUtil object to keep/read/create machine-id
 type WzMachineIDUtil struct {
 	filePath  string
@@ -20,13 +33,20 @@ type WzMachineIDUtil struct {
 }
 
 // NewWzMachineIDUtil creates a new instance of an object
-func NewWzMachineIDUtil(filePath string) *WzMachineIDUtil {
+func newWzMachineIDUtil(filePath string) *WzMachineIDUtil {
 	wmid := new(WzMachineIDUtil)
 	wmid.filePath = filePath
 
 	wmid.setupMachineId()
 
 	return wmid
+}
+
+// SetupMachineIdUtil setting up the Utility
+func (WzMachineIDUtil) SetupMachineIdUtil(filePath string) {
+	if _MachineIDUtil == nil {
+		_MachineIDUtil = newWzMachineIDUtil(filePath)
+	}
 }
 
 // GetMachineId always returns machine-id
