@@ -53,7 +53,7 @@ func (WzMachineIDUtil) SetupMachineIdUtil(filePath string) {
 // If machine-id is not present, it will be copied from
 // an existing one or generated, if no dbus found.
 func (wmid *WzMachineIDUtil) GetMachineId() string {
-	return wmid.machineid
+	return _MachineIDUtil.machineid
 }
 
 // setupMachineId reads an existing machine ID or creates new one.
