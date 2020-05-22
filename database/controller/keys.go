@@ -45,9 +45,7 @@ func (wck *WzCtrlKeysAPI) setDbh(dbh *gorm.DB) *WzCtrlKeysAPI {
 	return wck
 }
 
-// AddRSAPublicPEM returns client's RSA public key in PEM format, queried by the machine ID.
-// the fqdn is to merely indicate what machine is holding it, but the key is tied up to the machine ID.
-func (wck *WzCtrlKeysAPI) AddRSAPublicPEM(keypem []byte, machineid string, fqdn string, owner string) error {
+func (wck *WzCtrlKeysAPI) addRSAkeyPEM(keypem []byte, privkeypem []byte, machineid string, fqdn string, owner string) error {
 	if machineid == "" {
 		return fmt.Errorf("Unable to add PEM key: machine ID required.")
 	}
@@ -56,19 +54,32 @@ func (wck *WzCtrlKeysAPI) AddRSAPublicPEM(keypem []byte, machineid string, fqdn 
 	wck.db.Where("rsa_fp = ?", fingerprint).First(&existing)
 	if existing.RsaFp == "" {
 		wck.db.Create(&WzPEMKeyEntity{
-			RsaFp:     fingerprint,
-			RsaPk:     keypem,
-			MachineId: machineid,
-			Owner:     owner,
-			Fqdn:      fqdn,
+			RsaFp:      fingerprint,
+			RsaPk:      keypem,
+			RsaPrivKey: privkeypem,
+			MachineId:  machineid,
+			Owner:      owner,
+			Fqdn:       fqdn,
 		})
+	} else {
+		return fmt.Errorf("Key already exists")
 	}
 
 	return nil
 }
 
-// RemoveRSAPublicPEM from the database by full fingerprint
-func (wck *WzCtrlKeysAPI) RemoveRSAPublicPEM(fingerprint string) error {
+func (wck *WzCtrlKeysAPI) AddRSAKeypairPEM(pub []byte, priv []byte, machineid string, fqdn string, owner string) error {
+	return wck.addRSAkeyPEM(pub, priv, machineid, fqdn, owner)
+}
+
+// AddRSAPublicPEM returns client's RSA public key in PEM format, queried by the machine ID.
+// the fqdn is to merely indicate what machine is holding it, but the key is tied up to the machine ID.
+func (wck *WzCtrlKeysAPI) AddRSAPublicPEM(keypem []byte, machineid string, fqdn string, owner string) error {
+	return wck.addRSAkeyPEM(keypem, nil, machineid, fqdn, owner)
+}
+
+// RemoveRSAKeyPEM from the database by full fingerprint
+func (wck *WzCtrlKeysAPI) RemoveRSAKeyPEM(fingerprint string) error {
 	if fingerprint == "" {
 		return fmt.Errorf("Unable to remove PEM key: fingerprint required")
 	}
