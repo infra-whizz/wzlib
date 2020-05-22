@@ -9,10 +9,11 @@ import (
 )
 
 const (
-	OWNER_APP_REMOTE = "remote"
-	OWNER_APP_CTRL   = "controller"
-	OWNER_APP_WORKER = "worker"
-	OWNER_APP_CLIENT = "client"
+	OWNER_APP_REMOTE  = "remote"
+	OWNER_APP_CTRL    = "controller"
+	OWNER_APP_WORKER  = "worker"
+	OWNER_APP_CLIENT  = "client"
+	OWNER_APP_CLUSTER = "cluster"
 )
 
 // WzPEMKeyEntity entity object for the database of PEM keys
