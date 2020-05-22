@@ -18,12 +18,14 @@ const (
 
 // WzPEMKeyEntity entity object for the database of PEM keys
 type WzPEMKeyEntity struct {
-	ID        int    `gorm:"primary_key"`
-	RsaFp     string `gorm:"unique; not null"`
-	RsaPk     []byte `gorm:"unique; not null"`
-	MachineId string `gorm:"unique"`
-	Fqdn      string `gorm:"unique"`
-	Owner     string `gorm:"not null"`
+	ID         int    `gorm:"primary_key"`
+	RsaFp      string `gorm:"unique; not null"`
+	RsaPk      []byte `gorm:"unique; not null"`
+	RsaPrivKey []byte
+	MachineId  string `gorm:"unique"`
+	Fqdn       string `gorm:"unique"`
+	Owner      string `gorm:"not null"`
+	Type       string `gorm:"not null"`
 }
 
 type WzCtrlKeysAPI struct {
