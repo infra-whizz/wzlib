@@ -21,4 +21,4 @@ require (
 	gopkg.in/yaml.v2 v2.2.8
 )
 
-replace github.com/infra-whizz/wzlib => /home/bo/work/golang/infra-whizz/wzlib
+replace github.com/infra-whizz/wzlib => ../wzlib
