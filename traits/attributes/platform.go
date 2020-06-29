@@ -1,10 +1,14 @@
 package wzlib_traits_attributes
 
 import (
+	"strings"
+
 	"github.com/elastic/go-sysinfo"
 	"github.com/elastic/go-sysinfo/types"
 	wzlib_logger "github.com/infra-whizz/wzlib/logger"
 	wzlib_traits "github.com/infra-whizz/wzlib/traits"
+	wzlib_utils "github.com/infra-whizz/wzlib/utils"
+	"golang.org/x/sys/unix"
 )
 
 // SysInfo class
@@ -30,6 +34,7 @@ func (si *SysInfo) Load(container *wzlib_traits.WzTraitsContainer) {
 	si.memory(container)
 	si.info(container)
 	si.osInfo(container)
+	si.syscallInfo(container)
 }
 
 func (si *SysInfo) memory(c *wzlib_traits.WzTraitsContainer) {
@@ -59,4 +64,12 @@ func (si *SysInfo) osInfo(c *wzlib_traits.WzTraitsContainer) {
 	c.Set("os.ver_patch", nfo.Patch)
 	c.Set("os.name", nfo.Name)
 	c.Set("os.platform", nfo.Platform)
+}
+
+// This won't work on MacOS, because Uname is not a part of a system.
+func (si *SysInfo) syscallInfo(c *wzlib_traits.WzTraitsContainer) {
+	var uts unix.Utsname
+	if err := unix.Uname(&uts); err == nil {
+		c.Set("os.sysname", strings.ToLower(wzlib_utils.Ba65Str(uts.Sysname)))
+	}
 }
