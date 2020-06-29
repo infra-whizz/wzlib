@@ -17,6 +17,7 @@ require (
 	github.com/sirupsen/logrus v1.5.0
 	github.com/vmihailenco/msgpack/v4 v4.3.11
 	golang.org/x/crypto v0.0.0-20200219234226-1ad67e1f0ef4 // indirect
+	golang.org/x/sys v0.0.0-20191025021431-6c3a3bfe00ae
 	gopkg.in/check.v1 v1.0.0-20200227125254-8fa46927fb4f
 	gopkg.in/yaml.v2 v2.2.8
 )
