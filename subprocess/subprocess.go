@@ -7,8 +7,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strings"
-
-	"github.com/rubyist/tracerx"
 )
 
 // BufferedExec starts up a command and creates a stdin pipe and a buffered
@@ -110,7 +108,7 @@ func FormatForShellQuotedArgs(name string, args []string) (string, []string) {
 }
 
 func Trace(name string, args ...string) {
-	tracerx.Printf("exec: %s %s", name, quotedArgs(args))
+	fmt.Printf("exec: %s %s", name, quotedArgs(args))
 }
 
 func quotedArgs(args []string) string {
