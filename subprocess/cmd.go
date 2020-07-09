@@ -9,9 +9,8 @@ import (
 // keeping an internal reference to any created pipes. Whenever
 // Cmd.Wait() is called, all created pipes are closed.
 type Cmd struct {
-	*exec.Cmd
-
 	pipes []io.Closer
+	*exec.Cmd
 }
 
 func (c *Cmd) StdoutPipe() (io.ReadCloser, error) {
@@ -41,6 +40,5 @@ func (c *Cmd) Wait() error {
 }
 
 func newCmd(cmd *exec.Cmd) *Cmd {
-	wrapped := &Cmd{Cmd: cmd}
-	return wrapped
+	return &Cmd{Cmd: cmd}
 }
