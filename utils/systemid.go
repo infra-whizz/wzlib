@@ -74,7 +74,10 @@ func (wmid *WzMachineIDUtil) setupMachineId() {
 			wmid.GetLogger().Debugf("This system has no /etc/machine-id file, creating a replacement.")
 
 			hasher := md5.New()
-			io.WriteString(hasher, wzlib.MakeJid())
+			_, err := io.WriteString(hasher, wzlib.MakeJid())
+			if err != nil {
+				panic(err)
+			}
 			mid = []byte(fmt.Sprintf("%x", hasher.Sum(nil)))
 		}
 		if wmid.filePath != systemdMidFPath {
