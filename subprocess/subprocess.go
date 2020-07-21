@@ -2,7 +2,9 @@ package wzlib_subprocess
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
+	"io"
 	"os/exec"
 	"regexp"
 	"strings"
@@ -120,4 +122,20 @@ func quotedArgs(args []string) string {
 		quoted[i] = fmt.Sprintf("'%s'", arg)
 	}
 	return strings.Join(quoted, " ")
+}
+
+// CallStreaming returns also STDOUT to a custom output writer.
+// Usually done that this module accepts a filename to which the output is piped,
+// so tailing that file would give an STDOUT streaming integration,
+// while keeping JSON output safe.
+func StreamedExec(pipe string, name string, args ...string) (string, string) {
+	cmd := exec.Command(name, args...)
+	var stdoutBuf, stderrBuf bytes.Buffer
+	pipeStream := NewProcessStream(pipe)
+	cmd.Stdout = io.MultiWriter(pipeStream, &stdoutBuf)
+	cmd.Stderr = io.MultiWriter(&stderrBuf)
+	cmd.Run()
+	outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
+
+	return outStr, errStr
 }
