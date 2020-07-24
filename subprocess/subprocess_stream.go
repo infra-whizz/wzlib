@@ -7,14 +7,19 @@ import (
 )
 
 // ProcessStream object
-type ProcessStream struct {
+type ProcessStream interface {
+	Write(data []byte) (n int, err error)
+	Close() error
+}
+
+type RawProcessStream struct {
 	filePipe *os.File
 }
 
 // NewProcessStream creates a ProcessStream instance. Management of the pipe file is solely on module caller.
-func NewProcessStream(fname string) *ProcessStream {
+func NewRawProcessStream(fname string) *RawProcessStream {
 	var err error
-	zs := new(ProcessStream)
+	zs := new(RawProcessStream)
 	ioutil.WriteFile(fname, []byte(""), 0644)
 	zs.filePipe, err = os.OpenFile(fname, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
@@ -24,13 +29,13 @@ func NewProcessStream(fname string) *ProcessStream {
 }
 
 // Write data to the underlying pipe file
-func (zs *ProcessStream) Write(data []byte) (n int, err error) {
+func (zs *RawProcessStream) Write(data []byte) (n int, err error) {
 	line := strings.TrimSpace(string(data)) + "\n"
 	zs.filePipe.WriteString(line)
 	return len(data), nil
 }
 
 // Close stream
-func (zs *ProcessStream) Close() error {
+func (zs *RawProcessStream) Close() error {
 	return zs.filePipe.Close()
 }
