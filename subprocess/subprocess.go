@@ -128,11 +128,10 @@ func quotedArgs(args []string) string {
 // Usually done that this module accepts a filename to which the output is piped,
 // so tailing that file would give an STDOUT streaming integration,
 // while keeping JSON output safe.
-func StreamedExec(pipe string, name string, args ...string) (string, string) {
-	cmd := exec.Command(name, args...)
+func StreamedExec(pipe ProcessStream, name string, args ...string) (string, string) {
+	cmd := ExecCommand(name, args...)
 	var stdoutBuf, stderrBuf bytes.Buffer
-	pipeStream := NewProcessStream(pipe)
-	cmd.Stdout = io.MultiWriter(pipeStream, &stdoutBuf)
+	cmd.Stdout = io.MultiWriter(pipe, &stdoutBuf)
 	cmd.Stderr = io.MultiWriter(&stderrBuf)
 	cmd.Run()
 	outStr, errStr := string(stdoutBuf.Bytes()), string(stderrBuf.Bytes())
