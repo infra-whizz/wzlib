@@ -36,6 +36,11 @@ func (wl *WzLogger) GetLogger() *logrus.Logger {
 	return _Logger
 }
 
+// GetCurrentLogger that was already initialised
+func GetCurrentLogger() *logrus.Logger {
+	return new(WzLogger).GetLogger()
+}
+
 // GetTextLogger create a logger instance
 func GetTextLogger(level logrus.Level, out *os.File) *logrus.Logger {
 	formatter := new(nested.Formatter)
