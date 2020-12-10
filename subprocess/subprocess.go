@@ -5,10 +5,60 @@ import (
 	"bytes"
 	"fmt"
 	"io"
+	"os"
 	"os/exec"
 	"regexp"
 	"strings"
 )
+
+type EnvBufferedExec struct {
+	env map[string]string
+}
+
+func NewEnvBufferedExec() *EnvBufferedExec {
+	envx := new(EnvBufferedExec)
+	envx.env = make(map[string]string)
+	return envx
+}
+
+// SetEnv sets an environment variable
+func (envx *EnvBufferedExec) SetEnv(key string, value string) *EnvBufferedExec {
+	envx.env[key] = value
+	return envx
+}
+
+// Exec a command with the specific environment
+func (envx *EnvBufferedExec) Exec(name string, args ...string) (*BufferedCmd, error) {
+	cmd := ExecCommand(name, args...)
+	cmd.Env = os.Environ()
+	for ek, ev := range envx.env {
+		if strings.Contains(ev, " ") {
+			ev = fmt.Sprintf("\"%s\"", ev)
+		}
+		cmd.Env = append(cmd.Env, fmt.Sprintf("%s=%s", strings.TrimSpace(ek), ev))
+	}
+
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return nil, err
+	}
+	stderr, err := cmd.StderrPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return nil, err
+	}
+
+	if err := cmd.Start(); err != nil {
+		return nil, err
+	}
+
+	return &BufferedCmd{cmd, stdin, bufio.NewReaderSize(stdout, stdoutBufSize),
+		bufio.NewReaderSize(stderr, stdoutBufSize)}, nil
+}
 
 // BufferedExec starts up a command and creates a stdin pipe and a buffered
 // stdout & stderr pipes, wrapped in a BufferedCmd. The stdout buffer will be
