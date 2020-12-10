@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"io"
+	"strings"
 )
 
 const (
@@ -25,7 +26,7 @@ func (bc *BufferedCmd) buf2String(reader io.Reader) string {
 	if err != nil {
 		panic(err)
 	}
-	return buf.String()
+	return strings.TrimSpace(buf.String())
 }
 
 func (bc *BufferedCmd) StdoutString() string {
