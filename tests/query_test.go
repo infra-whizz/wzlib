@@ -31,13 +31,13 @@ func (s *QueryTestSuite) TearDownSuite(c *check.C) {
 // TestMatchAll for `\*` command
 func (s *QueryTestSuite) TestMatchAllByFlag(c *check.C) {
 	matcher := wzlib_query.NewWzQueryMatcher("a::")
-	matcher.Match()
+	matcher.Select([]string{""})
 	c.Assert(0, check.Equals, 0)
 }
 
 // TestMatchAll for `a::`
 func (s *QueryTestSuite) TestMatchAllByGlob(c *check.C) {
 	matcher := wzlib_query.NewWzQueryMatcher("*")
-	matcher.Match()
+	matcher.Select([]string{""})
 	c.Assert(0, check.Equals, 0)
 }
