@@ -5,8 +5,10 @@ go 1.13
 require (
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d // indirect
 	github.com/antonfisher/nested-logrus-formatter v1.0.3
+	github.com/davecgh/go-spew v1.1.1
 	github.com/elastic/go-sysinfo v1.3.0
 	github.com/go-ole/go-ole v1.2.4 // indirect
+	github.com/google/uuid v1.2.0
 	github.com/jinzhu/gorm v1.9.12
 	github.com/lib/pq v1.3.0 // indirect
 	github.com/nats-io/nats-server/v2 v2.1.4 // indirect
