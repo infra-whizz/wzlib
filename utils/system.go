@@ -19,6 +19,7 @@ import (
 // WzContainerParam object
 type WzContainerParam struct {
 	Root    string
+	Debug   bool
 	Command string
 	Args    []string
 }
@@ -58,9 +59,17 @@ func (c *WzContainer) ParsePkArgs(pa string) *WzContainerParam {
 	return nil
 }
 
+// Debug to log outputs only if debug is specified.
+// This cannot be set globally, because inception affects the rest of the logging.
+func (c *WzContainer) ldebug(message string, args ...interface{}) {
+	if c.conf.Debug {
+		c.GetLogger().Debug(fmt.Sprintf(message, args...))
+	}
+}
+
 // Start command in a container
 func (c *WzContainer) start() (string, string, error) {
-	c.GetLogger().Debugf("Starting nanocontainer at PID %d", os.Getpid())
+	c.ldebug("Starting nanocontainer at PID %d", os.Getpid())
 	var ob, eb bytes.Buffer
 
 	packedArgs := fmt.Sprintf(":c-%s:%s:%s:%s", c.jid, c.conf.Root, c.conf.Command, strings.Join(c.conf.Args, ","))
@@ -82,23 +91,24 @@ func (c *WzContainer) start() (string, string, error) {
 	return ob.String(), eb.String(), nil
 }
 
+// Container runner
 func (c *WzContainer) Container() (string, string, error) {
-	fmt.Printf("Running in new UTS namespace %v as %d\n", os.Args[2:], os.Getpid())
+	c.ldebug("Running in new UTS namespace %v as %d\n", os.Args[2:], os.Getpid())
 
 	if err := c.cGroups(); err != nil {
 		return "", "", err
 	}
-	c.GetLogger().Debugln("Cgroups are ready")
+	c.ldebug("Cgroups are ready")
 
 	if err := syscall.Chroot(c.conf.Root); err != nil {
 		return "", "", err
 	}
-	c.GetLogger().Debugf("Chrooted to '%s'", c.conf.Root)
+	c.ldebug("Chrooted to '%s'", c.conf.Root)
 
 	if err := syscall.Chdir("/"); err != nil {
 		return "", "", err
 	}
-	c.GetLogger().Debugf("At the root of the inner filesystem")
+	c.ldebug("At the root of the inner filesystem")
 
 	proc := true
 	if err := syscall.Mount("proc", "proc", "proc", 0, ""); err != nil {
@@ -124,9 +134,6 @@ func (c *WzContainer) Container() (string, string, error) {
 		}
 	}
 
-	c.GetLogger().Infof(">> STDOUT:\n%s\n", ob.String())
-	c.GetLogger().Infof(">> STDERR:\n%s\n", eb.String())
-
 	return ob.String(), eb.String(), nil
 }
 
@@ -139,7 +146,7 @@ func (c *WzContainer) cGroups() error {
 			return err
 		}
 	} else {
-		c.GetLogger().Debugf("Path for cgroups already exists: %s", cgroupsPath)
+		c.ldebug("Path for cgroups already exists: %s", cgroupsPath)
 	}
 
 	// fill in pids etc
