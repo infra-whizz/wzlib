@@ -38,6 +38,7 @@ func NewWzContainer(conf *WzContainerParam) *WzContainer {
 	c.conf = conf
 	c.self = "/proc/self/exe"
 	c.jid = strings.Split(uuid.New().String(), "-")[0]
+
 	return c
 }
 
@@ -47,7 +48,7 @@ func (c *WzContainer) Run() (string, string, error) {
 	if err != nil {
 		return "", "", err
 	}
-	return stdout, stderr, nil
+	return strings.TrimSpace(stdout), strings.TrimSpace(stderr), nil
 }
 
 // ParsePkArgs parses packed ":" separated args
