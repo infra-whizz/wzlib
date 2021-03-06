@@ -23,6 +23,7 @@ type WzContainerParam struct {
 	Args    []string
 }
 
+// WzContainer struct
 type WzContainer struct {
 	conf *WzContainerParam
 	self string
@@ -31,6 +32,7 @@ type WzContainer struct {
 	wzlib_logger.WzLogger
 }
 
+// NewWzContainer class
 func NewWzContainer(conf *WzContainerParam) *WzContainer {
 	c := new(WzContainer)
 	c.conf = conf
