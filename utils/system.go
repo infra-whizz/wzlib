@@ -131,10 +131,8 @@ func (c *WzContainer) Container() (string, string, error) {
 }
 
 func (c *WzContainer) cGroups() error {
-	cgroups := "/sys/fs/cgroup/"
-	pids := filepath.Join(cgroups, "pids")
+	pids := filepath.Join("/sys/fs/cgroup/", "pids")
 	cname := "waka-container"
-
 	cgroupsPath := filepath.Join(pids, cname)
 	if _, err := os.Stat(cgroupsPath); os.IsNotExist(err) {
 		if err := os.Mkdir(cgroupsPath, 0755); err != nil {
