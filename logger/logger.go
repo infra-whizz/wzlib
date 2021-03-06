@@ -36,9 +36,29 @@ func (wl *WzLogger) GetLogger() *logrus.Logger {
 	return _Logger
 }
 
+// SetCurrentLogger instance. Used for switching default formatters.
+func SetCurrentLogger(logger *logrus.Logger) *logrus.Logger {
+	if logger != nil {
+		_Logger = logger
+	}
+	return GetCurrentLogger()
+}
+
 // GetCurrentLogger that was already initialised
 func GetCurrentLogger() *logrus.Logger {
 	return new(WzLogger).GetLogger()
+}
+
+// GetJSONLogger create a logger instance returns in JSON format.
+// This is used for integration purposes to pass log entries via STDOUT
+func GetJSONLogger(level logrus.Level, out *os.File) *logrus.Logger {
+	formatter := new(logrus.JSONFormatter)
+
+	logger := logrus.New()
+	logger.Level = level
+	logger.SetFormatter(formatter)
+
+	return logger
 }
 
 // GetTextLogger create a logger instance
